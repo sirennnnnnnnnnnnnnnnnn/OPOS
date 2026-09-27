@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>OPOS</title>
+ <style>
+ :root {
+ --bg-color: #0a0a0a;
+ --text-color: #f0f0f0;
+ --accent-color: #007aff;
+ --window-bg: rgba(30, 30, 30, 0.95);
+ --window-border: 1px solid rgba(255, 255, 255, 0.1);
+ --dock-bg: rgba(40, 40, 40, 0.8);
+ --dock-hover: rgba(255, 255, 255, 0.2);
+ --icon-hover: rgba(255, 255, 255, 0.2);
+ --icon-selected: rgba(255, 255, 255, 0.4);
+ --login-bg: #1c1c1e;
+ }
+
+ * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+ background: var(--bg-color);
+ color: var(--text-color);
+ overflow: hidden;
+ height: 100vh;
+ width: 100vw;
+ }
+
+ 
+ #login-screen {
+ position: fixed;
+ top: 0; left: 0; width: 100%; height: 100%;
+ background: url('https://sirennnnnnnnnnnnnnnnnn.github.io/testOS/background1.png') no-repeat center center;
+ background-size: cover;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ z-index: 9999;
+ transition: opacity 0.5s ease;
+ }
+
+ #login-screen.faded {
+ opacity: 0;
+ pointer-events: none;
+ }
+
+ .login-container {
+ text-align: center;
+ background: rgba(0, 0, 0, 0.2);
+ padding: 40px;
+ border-radius: 20px;
+ backdrop-filter: blur(10px);
+ }
+
+ .login-clock {
+ font-size: 48px;
+ font-weight: 300;
+ margin-bottom: 20px;
+ text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+ }
+
+ .login-avatar {
+ width: 80px; height: 80px;
+ border-radius: 50%;
+ background: #333;
+ margin: 0 auto 15px;
+ border: 2px solid rgba(255,255,255,0.2);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 32px;
+ }
+
+ .login-input {
+ background: rgba(255, 255, 255, 0.1);
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ border-radius: 20px;
+ padding: 10px 15px;
+ color: white;
+ font-size: 16px;
+ width: 200px;
+ text-align: center;
+ outline: none;
+ }
+
+ .login-input::placeholder { color: rgba(255,255,255,0.5); }
+
+ /* Desktop */
+ #desktop {
+ position: relative;
+ width: 100%;
+ height: calc(100% - 60px);
+ background: url('https://sirennnnnnnnnnnnnnnnnn.github.io/testOS/background1.png') no-repeat center center;
+ background-size: cover;
+ display: none; /* Hidden until logged in */
+ }
+
+ /* Desktop Icons */
+ #desktop-icons {
+ position: absolute;
+ top: 20px;
+ left: 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 20px;
+ z-index: 50;
+ }
+
+ .desktop-icon {
+ width: 80px;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 5px;
+ cursor: pointer;
+ padding: 5px;
+ border-radius: 8px;
+ transition: background 0.2s;
+ }
+
+ .desktop-icon:hover { background: var(--icon-hover); }
+ .desktop-icon.selected { background: var(--icon-selected); }
+
+ .desktop-icon-img {
+ width: 48px; height: 48px;
+ background: rgba(255, 255, 255, 0.1);
+ border-radius: 12px;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 24px;
+ }
+
+ .desktop-icon-label {
+ font-size: 12px;
+ text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+ text-align: center;
+ width: 100%;
+ word-break: break-word;
+ }
+
+ /* Window System */
+ .window {
+ position: absolute;
+ background: var(--window-bg);
+ border: var(--window-border);
+ border-radius: 12px;
+ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+ display: flex;
+ flex-direction: column;
+ overflow: hidden;
+ min-width: 300px;
+ min-height: 200px;
+ transition: transform 0.1s;
+ z-index: 100;
+ }
+
+ .window-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 10px 15px;
+ background: rgba(50, 50, 50, 0.9);
+ cursor: move;
+ border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+ z-index: 10;
+ height: 40px;
+ }
+
+ .window-title { font-size: 14px; font-weight: 600; color: #ccc; }
+
+ .window-controls { display: flex; gap: 8px; }
+ .window-btn {
+ width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer;
+ }
+ .btn-close { background: #ff5f56; }
+ .btn-minimize { background: #ffbd2e; }
+ .btn-maximize { background: #27c93f; }
+
+ .window-content {
+ flex: 1;
+ padding: 0;
+ overflow: hidden;
+ position: relative;
+ background: #000;
+ }
+
+ /* Resize Handle */
+ .resize-handle {
+ position: absolute;
+ bottom: 0; right: 0;
+ width: 15px; height: 15px;
+ cursor: nwse-resize;
+ z-index: 15;
+ }
+
+ /* Dock */
+ #dock-container {
+ position: fixed;
+ bottom: 10px; left: 50%;
+ transform: translateX(-50%);
+ display: flex;
+ gap: 15px;
+ padding: 10px 20px;
+ background: var(--dock-bg);
+ border-radius: 20px;
+ backdrop-filter: blur(10px);
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ z-index: 1000;
+ }
+
+ .dock-icon {
+ width: 50px; height: 50px; border-radius: 12px;
+ background: rgba(255, 255, 255, 0.1);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 24px; cursor: pointer; transition: all 0.2s;
+ }
+ .dock-icon:hover { background: var(--dock-hover); transform: scale(1.1); }
+
+ /* Game App Styles */
+ .game-wrapper {
+ position: absolute; top: 0; left: 0;
+ width: 100%; height: 100%;
+ display: flex; justify-content: center; align-items: center;
+ }
+ .game-frame { width: 100%; height: 100%; border: none; display: block; background: #000; }
+
+ .game-overlay {
+ position: absolute; top: 10px; left: 10px;
+ background: rgba(0,0,0,0.7); color: white;
+ padding: 5px 10px; border-radius: 5px;
+ font-size: 12px; pointer-events: none;
+ z-index: 5;
+ }
+
+ /* Utility */
+ .hidden { display: none !important; }
+ </style>
+</head>
+<body>
+ <!-- Login Screen -->
+ <div id="login-screen">
+ <div class="login-container">
+ <div class="login-clock" id="login-clock">00:00</div>
+ <div class="login-avatar">👤</div>
+ <input type="password" class="login-input" id="login-password" placeholder="Password" autofocus>
+ </div>
+ </div>
+
+ <!-- Desktop -->
+ <div id="desktop">
+ <!-- Desktop Icons -->
+ <div id="desktop-icons"></div>
+ <!-- Windows will be injected here -->
+ </div>
+
+ <!-- Dock -->
+ <div id="dock-container">
+ <div class="dock-icon" onclick="AppManager.open('terminal')">💻</div>
+ <div class="dock-icon" onclick="AppManager.open('settings')">⚙️</div>
+ <div class="dock-icon" onclick="AppManager.open('browser')">🌐</div>
+ <div class="dock-icon" onclick="AppManager.open('notepad')">📝</div>
+ <div class="dock-icon" onclick="AppManager.open('files')">📁</div>
+ <div class="dock-icon" onclick="AppManager.open('minecraft')">🎮</div>
+ </div>
+
+ <script>
+  const EH = "0x313031";
+
+ function DP() {
+ const num = parseInt(EH, 16);
+ const charCode = num;
+ const hexStr = "313031";
+ let result = "";
+ for (let i = 0; i < hexStr.length; i += 2) {
+ result += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16));
+ }
+ return result;
+ }
+
+ const PD = DP();
+
+
+ const loginScreen = document.getElementById('login-screen');
+ const loginInput = document.getElementById('login-password');
+ const loginClock = document.getElementById('login-clock');
+
+ function updateClock() {
+ const now = new Date();
+ const hours = String(now.getHours()).padStart(2, '0');
+ const minutes = String(now.getMinutes()).padStart(2, '0');
+ loginClock.textContent = `${hours}:${minutes}`;
+ }
+ setInterval(updateClock, 1000);
+ updateClock();
+
+ loginInput.addEventListener('keydown', (e) => {
+ if (e.key === 'Enter') {
+ const value = loginInput.value;
+ if (value === PD) {
+ loginScreen.classList.add('faded');
+ document.getElementById('desktop').style.display = 'block';
+ } else {
+ loginInput.style.borderColor = '#ff5f56';
+ loginInput.value = '';
+ loginInput.placeholder = 'Wrong Password';
+ setTimeout(() => {
+ loginInput.style.borderColor = 'rgba(255,255,255,0.2)';
+ loginInput.placeholder = 'Password';
+ }, 1000);
+ }
+ }
+ });
+
+ // --- YukiOS Core ---
+ const wm = {
+ windows: [],
+ zIndex: 100,
+
+ create: (title, content, width = 800, height = 600) => {
+ const id = `win-${Date.now()}`;
+ const win = document.createElement('div');
+ win.className = 'window';
+ win.id = id;
+ win.style.width = `${width}px`;
+ win.style.height = `${height}px`;
+ win.style.left = `${Math.random() * (window.innerWidth - 400)}px`;
+ win.style.top = `${Math.random() * (window.innerHeight - 300)}px`;
+ win.style.zIndex = ++wm.zIndex;
+
+ win.innerHTML = `
+ <div class="window-header">
+ <span class="window-title">${title}</span>
+ <div class="window-controls">
+ <button class="window-btn btn-minimize"></button>
+ <button class="window-btn btn-maximize"></button>
+ <button class="window-btn btn-close"></button>
+ </div>
+ </div>
+ <div class="window-content" id="app-content"></div>
+ <div class="resize-handle"></div>
+ `;
+
+ // Make window draggable
+ const header = win.querySelector('.window-header');
+ let isDragging = false;
+ let offsetX, offsetY;
+
+ header.addEventListener('mousedown', (e) => {
+ isDragging = true;
+ offsetX = e.clientX - win.offsetLeft;
+ offsetY = e.clientY - win.offsetTop;
+ win.style.zIndex = ++wm.zIndex;
+ });
+
+ document.addEventListener('mousemove', (e) => {
+ if (isDragging) {
+ win.style.left = `${e.clientX - offsetX}px`;
+ win.style.top = `${e.clientY - offsetY}px`;
+ }
+ });
+
+ document.addEventListener('mouseup', () => {
+ isDragging = false;
+ });
+
+ // Resize Logic
+ const resizeHandle = win.querySelector('.resize-handle');
+ let isResizing = false;
+ let startX, startY, startWidth, startHeight;
+
+ resizeHandle.addEventListener('mousedown', (e) => {
+ isResizing = true;
+ win.style.zIndex = ++wm.zIndex;
+ startX = e.clientX;
+ startY = e.clientY;
+ startWidth = parseInt(document.defaultView.getComputedStyle(win).width, 10);
+ startHeight = parseInt(document.defaultView.getComputedStyle(win).height, 10);
+ e.preventDefault();
+ e.stopPropagation();
+ });
+
+ document.addEventListener('mousemove', (e) => {
+ if (isResizing) {
+ const newWidth = startWidth + (e.clientX - startX);
+ const newHeight = startHeight + (e.clientY - startY);
+ win.style.width = `${Math.max(newWidth, 300)}px`;
+ win.style.height = `${Math.max(newHeight, 200)}px`;
+ }
+ });
+
+ document.addEventListener('mouseup', () => {
+ isResizing = false;
+ });
+
+ // Close button
+ win.querySelector('.btn-close').addEventListener('click', () => {
+ win.remove();
+ wm.windows = wm.windows.filter(w => w.id !== id);
+ });
+
+ // Maximize button logic
+ win.querySelector('.btn-maximize').addEventListener('click', () => {
+ if (win.style.width === '100%') {
+ win.style.width = width + 'px';
+ win.style.height = height + 'px';
+ win.style.top = '50px';
+ win.style.left = '50px';
+ } else {
+ win.style.width = '100%';
+ win.style.height = 'calc(100% - 60px)';
+ win.style.top = '0';
+ win.style.left = '0';
+ }
+ });
+
+ document.getElementById('desktop').appendChild(win);
+ wm.windows.push(win);
+ return win;
+ }
+ };
+
+ // File System Wrapper (IndexedDB)
+ const FileSystem = {
+ dbName: 'YukiOS_Filesystem',
+ storeName: 'files',
+ db: null,
+
+ init: async () => {
+ return new Promise((resolve, reject) => {
+ const request = indexedDB.open(FileSystem.dbName, 1);
+ request.onupgradeneeded = (event) => {
+ const db = event.target.result;
+ if (!db.objectStoreNames.contains(FileSystem.storeName)) {
+ db.createObjectStore(FileSystem.storeName, { keyPath: 'name' });
+ }
+ };
+ request.onsuccess = (event) => {
+ FileSystem.db = event.target.result;
+ resolve();
+ };
+ request.onerror = (event) => reject(event.target.error);
+ });
+ },
+
+ saveFile: async (name, content) => {
+ return new Promise((resolve, reject) => {
+ const transaction = FileSystem.db.transaction([FileSystem.storeName], 'readwrite');
+ const store = transaction.objectStore(FileSystem.storeName);
+ const request = store.put({ name, content });
+ request.onsuccess = () => resolve();
+ request.onerror = (e) => reject(e.target.error);
+ });
+ },
+
+ readFile: async (name) => {
+ return new Promise((resolve, reject) => {
+ const transaction = FileSystem.db.transaction([FileSystem.storeName], 'readonly');
+ const store = transaction.objectStore(FileSystem.storeName);
+ const request = store.get(name);
+ request.onsuccess = () => resolve(request.result ? request.result.content : '');
+ request.onerror = (e) => reject(e.target.error);
+ });
+ },
+
+ listFiles: async () => {
+ return new Promise((resolve, reject) => {
+ const transaction = FileSystem.db.transaction([FileSystem.storeName], 'readonly');
+ const store = transaction.objectStore(FileSystem.storeName);
+ const request = store.getAll();
+ request.onsuccess = () => {
+ const files = request.result;
+ resolve(files.map(f => f.name));
+ };
+ request.onerror = (e) => reject(e.target.error);
+ });
+ }
+ };
+
+ // App Manager
+ const AppManager = {
+ apps: {
+ terminal: {
+ init: (contentEl) => {
+ contentEl.innerHTML = `
+ <div style="font-family: monospace; padding: 10px; height: 100%; background: #000; color: #0f0;">
+ <div>$ <span class="cursor">_</span></div>
+ </div>
+ `;
+ }
+ },
+ settings: {
+ init: (contentEl) => {
+ contentEl.innerHTML = `
+ <div style="padding: 10px;">
+ <h2>Settings</h2>
+ <p>System Settings will appear here.</p>
+ </div>
+ `;
+ }
+ },
+ browser: {
+ init: (contentEl) => {
+ const iframe = document.createElement('iframe');
+ iframe.src = "https://sirennnnnnnnnnnnnnnnnn.github.io/brow1/index.svg";
+ iframe.className = "game-frame";
+ iframe.allow = "scripts; same-origin";
+ iframe.sandbox = "allow-scripts allow-same-origin allow-popups allow-forms";
+ iframe.frameBorder = "0";
+ iframe.style.width = "100%";
+ iframe.style.height = "100%";
+ contentEl.appendChild(iframe);
+ }
+ },
+ notepad: {
+ init: (contentEl) => {
+ const wrapper = document.createElement('div');
+ wrapper.style.display = 'flex';
+ wrapper.style.flexDirection = 'column';
+ wrapper.style.height = '100%';
+ wrapper.style.padding = '10px';
+
+ const title = document.createElement('h3');
+ title.innerText = 'New Notepad';
+ title.style.marginBottom = '5px';
+
+ const textarea = document.createElement('textarea');
+ textarea.style.flex = '1';
+ textarea.style.background = '#000';
+ textarea.style.color = '#0f0';
+ textarea.style.border = '1px solid #333';
+ textarea.style.resize = 'none';
+ textarea.placeholder = 'Start typing...';
+
+ const buttonContainer = document.createElement('div');
+ buttonContainer.style.marginTop = '10px';
+ buttonContainer.style.display = 'flex';
+ buttonContainer.style.gap = '10px';
+
+ const saveBtn = document.createElement('button');
+ saveBtn.innerText = 'Save to File System';
+ saveBtn.style.padding = '5px 10px';
+ saveBtn.style.background = '#007aff';
+ saveBtn.style.color = 'white';
+ saveBtn.style.border = 'none';
+ saveBtn.style.borderRadius = '4px';
+ saveBtn.style.cursor = 'pointer';
+
+ saveBtn.onclick = async () => {
+ const fileName = prompt("Enter file name (e.g., notes.txt):");
+ if (fileName) {
+ await FileSystem.saveFile(fileName, textarea.value);
+ alert(`Saved as ${fileName}`);
+ }
+ };
+
+ buttonContainer.appendChild(saveBtn);
+ wrapper.appendChild(title);
+ wrapper.appendChild(textarea);
+ wrapper.appendChild(buttonContainer);
+ contentEl.appendChild(wrapper);
+ }
+ },
+ files: {
+ init: async (contentEl) => {
+ contentEl.innerHTML = `
+ <div style="padding: 10px;">
+ <h2>File Manager</h2>
+ <div id="file-list" style="margin-top: 10px; overflow-y: auto; max-height: 100%;"></div>
+ </div>
+ `;
+ const listEl = contentEl.querySelector('#file-list');
+ const files = await FileSystem.listFiles();
+ if (files.length === 0) {
+ listEl.innerHTML = '<p>No files found.</p>';
+ } else {
+ const ul = document.createElement('ul');
+ ul.style.listStyle = 'none';
+ files.forEach(file => {
+ const li = document.createElement('li');
+ li.style.padding = '5px';
+ li.style.cursor = 'pointer';
+ li.style.borderBottom = '1px solid #333';
+ li.innerText = file;
+ li.onclick = async () => {
+ const content = await FileSystem.readFile(file);
+ wm.create(file, '', 600, 400);
+ const win = wm.windows[wm.windows.length - 1];
+ const contentEl = win.querySelector('#app-content');
+ const wrapper = document.createElement('div');
+ wrapper.style.display = 'flex';
+ wrapper.style.flexDirection = 'column';
+ wrapper.style.height = '100%';
+ wrapper.style.padding = '10px';
+
+ const textarea = document.createElement('textarea');
+ textarea.style.flex = '1';
+ textarea.style.background = '#000';
+ textarea.style.color = '#0f0';
+ textarea.style.border = '1px solid #333';
+ textarea.style.resize = 'none';
+ textarea.value = content;
+
+ const buttonContainer = document.createElement('div');
+ buttonContainer.style.marginTop = '10px';
+ buttonContainer.style.display = 'flex';
+ buttonContainer.style.gap = '10px';
+
+ const saveBtn = document.createElement('button');
+ saveBtn.innerText = 'Save Changes';
+ saveBtn.style.padding = '5px 10px';
+ saveBtn.style.background = '#007aff';
+ saveBtn.style.color = 'white';
+ saveBtn.style.border = 'none';
+ saveBtn.style.borderRadius = '4px';
+ saveBtn.style.cursor = 'pointer';
+
+ saveBtn.onclick = async () => {
+ await FileSystem.saveFile(file, textarea.value);
+ alert('File updated!');
+ };
+
+ buttonContainer.appendChild(saveBtn);
+ wrapper.appendChild(textarea);
+ wrapper.appendChild(buttonContainer);
+ contentEl.appendChild(wrapper);
+ };
+ ul.appendChild(li);
+ });
+ listEl.appendChild(ul);
+ }
+ }
+ },
+ minecraft: {
+ init: (contentEl) => {
+ const wrapper = document.createElement('div');
+ wrapper.className = 'game-wrapper';
+
+ const overlay = document.createElement('div');
+ overlay.className = 'game-overlay';
+ overlay.innerText = 'Click to Start (Press Esc to Unfocus)';
+
+ const iframe = document.createElement('iframe');
+ iframe.src = "https://sirennnnnnnnnnnnnnnnnn.github.io/minec/index.html";
+ iframe.className = "game-frame";
+ iframe.allow = "gamepad; autoplay; encrypted-media; sync-events; pointer-lock; fullscreen";
+ iframe.sandbox = "allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-pointer-lock";
+ iframe.frameBorder = "0";
+
+ wrapper.appendChild(overlay);
+ wrapper.appendChild(iframe);
+ contentEl.appendChild(wrapper);
+
+ // Handle Pointer Lock Logic
+ iframe.addEventListener('click', () => {
+ wrapper.requestPointerLock = wrapper.requestPointerLock || wrapper.mozRequestPointerLock || wrapper.webkitRequestPointerLock;
+ if (document.pointerLockElement === wrapper) {
+ document.exitPointerLock();
+ overlay.style.display = 'block';
+ } else {
+ wrapper.requestPointerLock();
+ overlay.style.display = 'none';
+ }
+ });
+
+ document.addEventListener('pointerlockchange', () => {
+ if (document.pointerLockElement === wrapper) {
+ overlay.style.display = 'none';
+ } else {
+ overlay.style.display = 'block';
+ }
+ });
+ }
+ }
+ },
+
+ open: async (appName) => {
+ const app = AppManager.apps[appName];
+ if (app) {
+ const win = wm.create(
+ appName.charAt(0).toUpperCase() + appName.slice(1),
+ '',
+ 800,
+ 600
+ );
+ const contentEl = win.querySelector('#app-content');
+ app.init(contentEl);
+ }
+ }
+ };
+
+ // Initialize Desktop Icons
+ const DesktopIcons = {
+ init: () => {
+ const container = document.getElementById('desktop-icons');
+ const apps = ['terminal', 'settings', 'browser', 'notepad', 'files', 'minecraft'];
+ const icons = {
+ terminal: '💻',
+ settings: '⚙️',
+ browser: '🌐',
+ notepad: '📝',
+ files: '📁',
+ minecraft: '🎮'
+ };
+
+ apps.forEach(app => {
+ const iconEl = document.createElement('div');
+ iconEl.className = 'desktop-icon';
+ iconEl.innerHTML = `
+ <div class="desktop-icon-img">${icons[app]}</div>
+ <div class="desktop-icon-label">${app.charAt(0).toUpperCase() + app.slice(1)}</div>
+ `;
+
+ let clickCount = 0;
+ let clickTimer = null;
+
+ iconEl.addEventListener('click', () => {
+ clickCount++;
+ if (clickCount === 1) {
+ clickTimer = setTimeout(() => {
+ clickCount = 0;
+ document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+ iconEl.classList.add('selected');
+ }, 250);
+ } else if (clickCount === 2) {
+ clearTimeout(clickTimer);
+ clickCount = 0;
+ document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+ AppManager.open(app);
+ }
+ });
+
+ container.appendChild(iconEl);
+ });
+ }
+ };
+
+ // Initialize
+ document.addEventListener('DOMContentLoaded', async () => {
+ await FileSystem.init();
+ DesktopIcons.init();
+ });
+ </script>
+</body>
+</html>
