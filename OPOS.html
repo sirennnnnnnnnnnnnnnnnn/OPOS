@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>OPOS</title>
+ <title>YukiOS</title>
  <style>
  :root {
  --bg-color: #0a0a0a;
@@ -29,11 +29,11 @@
  width: 100vw;
  }
 
- 
+ /* Login Screen */
  #login-screen {
  position: fixed;
  top: 0; left: 0; width: 100%; height: 100%;
- background: url('https://sirennnnnnnnnnnnnnnnnn.github.io/OPOS/background1.png') no-repeat center center;
+ background: url('https://sirennnnnnnnnnnnnnnnnn.github.io/testOS/background1.png') no-repeat center center;
  background-size: cover;
  display: flex;
  flex-direction: column;
@@ -265,12 +265,10 @@
  </div>
 
  <script>
-  const EH = "0x313031";
+ const EH = "0x313031";
 
  function DP() {
- const num = parseInt(EH, 16);
- const charCode = num;
- const hexStr = "313031";
+ const hexStr = "313031"; 
  let result = "";
  for (let i = 0; i < hexStr.length; i += 2) {
  result += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16));
@@ -278,9 +276,9 @@
  return result;
  }
 
- const PD = DP();
+ const PSW = DP();
 
-
+ // Login Logic
  const loginScreen = document.getElementById('login-screen');
  const loginInput = document.getElementById('login-password');
  const loginClock = document.getElementById('login-clock');
@@ -297,7 +295,7 @@
  loginInput.addEventListener('keydown', (e) => {
  if (e.key === 'Enter') {
  const value = loginInput.value;
- if (value === PD) {
+ if (value === PSW) {
  loginScreen.classList.add('faded');
  document.getElementById('desktop').style.display = 'block';
  } else {
@@ -312,7 +310,7 @@
  }
  });
 
- // --- OPOS Core ---
+ // --- YukiOS Core ---
  const wm = {
  windows: [],
  zIndex: 100,
@@ -501,15 +499,254 @@
  },
  browser: {
  init: (contentEl) => {
+ // Data structures
+ const engines = {
+ aether: {
+ name: 'Aether',
+ desc: 'Recommended but easily bl0cked',
+ urls: [
+ "https://storage.googleapis.com/aetherinstitution/study.html",
+ "https://storage.googleapis.com/apushistory/study.html",
+ "https://storage.googleapis.com/ti84calc/study.html",
+ "https://storage.googleapis.com/chubbyverity/index.html",
+ "https://storage.googleapis.com/aetherschools/index.html",
+ "https://storage.googleapis.com/apresources/index.html",
+ "https://storage.googleapis.com/atlantak12/index.html"
+ ]
+ },
+ opium: {
+ name: 'Opium',
+ desc: 'Most Likely unbl00cked',
+ urls: [
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium1.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium2.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium3.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium4.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium5.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium6.svg",
+ "https://cdn.jsdelivr.net/gh/Mtreasur0133-bit/autorepo1@793894ded02fe54ec05be665bdd6e52837596afc/Opium7.svg",
+ "https://sirennnnnnnnnnnnnnnnnn.github.io/OPOS/index.svg"
+ ]
+ },
+ bull: {
+ name: 'Bull-33',
+ desc: 'Not the best, but good backup',
+ urls: [
+ "s3.amazonaws.com/phtn/index.html",
+ "s3.us-east-1.amazonaws.com/phtn/index.html",
+ "phtn.s3.amazonaws.com/index.html",
+ "phtn.s3.us-east-1.amazonaws.com/index.html",
+ "s3.dualstack.us-east-1.amazonaws.com/phtn/index.html",
+ "phtn.s3.dualstack.us-east-1.amazonaws.com/index.html",
+ "s3.amazonaws.com/ptnx/index.html",
+ "s3.us-east-1.amazonaws.com/ptnx/index.html",
+ "ptnx.s3.amazonaws.com/index.html",
+ "ptnx.s3.us-east-1.amazonaws.com/index.html",
+ "s3.dualstack.us-east-1.amazonaws.com/ptnx/index.html",
+ "s3.dualstack.us-east-1.amazonaws.com/ptnx/index.html"
+ ]
+ }
+ };
+
+ // Create the main container
+ const container = document.createElement('div');
+ container.style.width = '100%';
+ container.style.height = '100%';
+ container.style.background = '#0a0a0a';
+ container.style.display = 'flex';
+ container.style.flexDirection = 'column';
+ container.style.overflow = 'hidden';
+
+ // --- Menu View ---
+ const menuView = document.createElement('div');
+ menuView.style.display = 'flex';
+ menuView.style.flexDirection = 'column';
+ menuView.style.alignItems = 'center';
+ menuView.style.justifyContent = 'center';
+ menuView.style.height = '100%';
+ menuView.style.padding = '20px';
+ menuView.style.gap = '20px';
+ menuView.style.overflowY = 'auto';
+ menuView.style.scrollbarWidth = 'thin';
+ menuView.style.scrollbarColor = '#333 #0a0a0a';
+
+ const menuTitle = document.createElement('h2');
+ menuTitle.textContent = 'Select Browser Engine';
+ menuTitle.style.color = '#fff';
+ menuTitle.style.marginBottom = '10px';
+ menuView.appendChild(menuTitle);
+
+ // Helper to create engine buttons
+ const createEngineButton = (key, data) => {
+ const card = document.createElement('div');
+ card.style.background = '#1e1e1e';
+ card.style.border = '1px solid #333';
+ card.style.borderRadius = '12px';
+ card.style.padding = '20px';
+ card.style.width = '100%';
+ card.style.maxWidth = '400px';
+ card.style.cursor = 'pointer';
+ card.style.transition = 'transform 0.2s, background 0.2s';
+ card.style.display = 'flex';
+ card.style.flexDirection = 'column';
+ card.style.gap = '8px';
+ card.style.textAlign = 'center';
+
+ const title = document.createElement('h3');
+ title.style.margin = '0';
+ title.style.color = key === 'bull' ? '#4caf50' : (key === 'opium' ? '#ff9800' : '#007aff');
+ title.style.fontSize = '18px';
+ title.textContent = data.name;
+
+ const desc = document.createElement('p');
+ desc.style.margin = '0';
+ desc.style.color = '#888';
+ desc.style.fontSize = '14px';
+ desc.textContent = data.desc;
+
+ card.appendChild(title);
+ card.appendChild(desc);
+
+ card.addEventListener('mouseenter', () => card.style.background = '#2a2a2a');
+ card.addEventListener('mouseleave', () => card.style.background = '#1e1e1e');
+
+ card.addEventListener('click', () => {
+ card.style.transform = 'scale(0.98)';
+ setTimeout(() => card.style.transform = 'scale(1)', 100);
+
+ currentEngine = key;
+ menuView.style.display = 'none';
+ if (currentIframe) currentIframe.remove();
+ 
  const iframe = document.createElement('iframe');
- iframe.src = "https://sirennnnnnnnnnnnnnnnnn.github.io/OPOS/index.svg";
- iframe.className = "game-frame";
- iframe.allow = "scripts; same-origin";
- iframe.sandbox = "allow-scripts allow-same-origin allow-popups allow-forms";
- iframe.frameBorder = "0";
- iframe.style.width = "100%";
- iframe.style.height = "100%";
- contentEl.appendChild(iframe);
+ iframe.src = data.urls[Math.floor(Math.random() * data.urls.length)];
+ iframe.style.width = '100%';
+ iframe.style.height = '100%';
+ iframe.style.border = 'none';
+ iframe.style.background = '#000';
+ 
+ container.appendChild(iframe);
+ currentIframe = iframe;
+ });
+
+ return card;
+ };
+
+ menuView.appendChild(createEngineButton('aether', engines.aether));
+ menuView.appendChild(createEngineButton('opium', engines.opium));
+ menuView.appendChild(createEngineButton('bull', engines.bull));
+
+ container.appendChild(menuView);
+
+ // Browser View
+ const browserView = document.createElement('div');
+ browserView.style.display = 'none';
+ browserView.style.width = '100%';
+ browserView.style.height = '100%';
+ browserView.style.flexDirection = 'column';
+ browserView.style.background = '#0a0a0a';
+ browserView.style.display = 'flex'; // Default to menu
+
+ // Top Bar for Browser View
+ const topBar = document.createElement('div');
+ topBar.style.display = 'flex';
+ topBar.style.justifyContent = 'space-between';
+ topBar.style.alignItems = 'center';
+ topBar.style.padding = '10px';
+ topBar.style.background = '#1e1e1e';
+ topBar.style.borderBottom = '1px solid #333';
+
+ const engineNameLabel = document.createElement('span');
+ engineNameLabel.style.color = '#fff';
+ engineNameLabel.style.fontWeight = 'bold';
+ topBar.appendChild(engineNameLabel);
+
+ const switchEngineBtn = document.createElement('button');
+ switchEngineBtn.textContent = 'Switch Engine';
+ switchEngineBtn.style.padding = '5px 10px';
+ switchEngineBtn.style.background = '#333';
+ switchEngineBtn.style.color = '#fff';
+ switchEngineBtn.style.border = '1px solid #555';
+ switchEngineBtn.style.borderRadius = '5px';
+ switchEngineBtn.style.cursor = 'pointer';
+ switchEngineBtn.onclick = () => {
+ menuView.style.display = 'flex';
+ browserView.style.display = 'none';
+ if (currentIframe) {
+ currentIframe.remove();
+ currentIframe = null;
+ }
+ };
+ topBar.appendChild(switchEngineBtn);
+
+ const blockBtn = document.createElement('button');
+ blockBtn.textContent = 'Blocked? Try another link';
+ blockBtn.style.padding = '5px 10px';
+ blockBtn.style.background = '#ff5f56';
+ blockBtn.style.color = '#fff';
+ blockBtn.style.border = 'none';
+ blockBtn.style.borderRadius = '5px';
+ blockBtn.style.cursor = 'pointer';
+ blockBtn.style.display = 'none'; // Hidden until engine is selected
+ blockBtn.onclick = () => {
+ if (!currentEngine) return;
+ const currentData = engines[currentEngine];
+ let randomUrl;
+ do {
+ randomUrl = currentData.urls[Math.floor(Math.random() * currentData.urls.length)];
+ } while (randomUrl === currentIframe.src && currentData.urls.length > 1);
+ currentIframe.src = randomUrl;
+ };
+ topBar.appendChild(blockBtn);
+
+ // Open in New Tab Button (Fixes file:// issues)
+ const newTabBtn = document.createElement('button');
+ newTabBtn.textContent = 'Open in New Tab';
+ newTabBtn.style.padding = '5px 10px';
+ newTabBtn.style.background = '#4caf50';
+ newTabBtn.style.color = '#fff';
+ newTabBtn.style.border = 'none';
+ newTabBtn.style.borderRadius = '5px';
+ newTabBtn.style.cursor = 'pointer';
+ newTabBtn.style.display = 'none';
+ newTabBtn.onclick = () => {
+ if (!currentIframe) return;
+ window.open(currentIframe.src, '_blank');
+ };
+ topBar.appendChild(newTabBtn);
+
+ browserView.appendChild(topBar);
+
+ const iframeContainer = document.createElement('div');
+ iframeContainer.style.flex = '1';
+ iframeContainer.style.position = 'relative';
+ browserView.appendChild(iframeContainer);
+
+ container.appendChild(menuView);
+ container.appendChild(browserView);
+
+ contentEl.appendChild(container);
+
+ // State for this window
+ let currentEngine = null;
+ let currentIframe = null;
+
+ const updateBrowserUI = (engineKey) => {
+ if (!engineKey) {
+ menuView.style.display = 'flex';
+ browserView.style.display = 'none';
+ return;
+ }
+ menuView.style.display = 'none';
+ browserView.style.display = 'flex';
+ engineNameLabel.textContent = `Engine: ${engines[engineKey].name}`;
+ blockBtn.style.display = 'block';
+ newTabBtn.style.display = 'block';
+ };
+
+ // Initial state
+ updateBrowserUI(null);
  }
  },
  notepad: {
@@ -651,7 +888,6 @@
  wrapper.appendChild(iframe);
  contentEl.appendChild(wrapper);
 
- // Handle Pointer Lock Logic
  iframe.addEventListener('click', () => {
  wrapper.requestPointerLock = wrapper.requestPointerLock || wrapper.mozRequestPointerLock || wrapper.webkitRequestPointerLock;
  if (document.pointerLockElement === wrapper) {
