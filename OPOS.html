@@ -501,7 +501,7 @@
  browser: {
  init: (contentEl) => {
  // State management
- let currentEngine = null; // 'aether', 'opium', 'bull', 'novene'
+ let currentEngine = null; 
  let currentIndex = 0;
  let currentIframe = null;
 
@@ -536,40 +536,37 @@
  ]
  },
  bull: {
-    name: 'Bull-33',
-    desc: 'Not the best, but good backup',
-    urls: [
-        "https://s3.amazonaws.com/phtn/index.html",
-        "https://s3.us-east-1.amazonaws.com/phtn/index.html",
-        "https://phtn.s3.amazonaws.com/index.html",
-        "https://phtn.s3.us-east-1.amazonaws.com/index.html",
-        "https://s3.dualstack.us-east-1.amazonaws.com/phtn/index.html",
-        "https://phtn.s3.dualstack.us-east-1.amazonaws.com/index.html",
-        "https://s3.amazonaws.com/ptnx/index.html",
-        "https://s3.us-east-1.amazonaws.com/ptnx/index.html",
-        "https://ptnx.s3.amazonaws.com/index.html",
-        "https://ptnx.s3.us-east-1.amazonaws.com/index.html",
-        "https://s3.dualstack.us-east-1.amazonaws.com/ptnx/index.html",
-        "https://phtn.s3.dualstack.us-east-1.amazonaws.com/index.html"
-    ],
-    // Use a fetch-based loader instead of a simple src
-    load: async (url, iframe) => {
-        try {
-            // Fetch the HTML content
-            const response = await fetch(url);
-            const html = await response.text();
-            
-            // Open the iframe's document
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(html);
-            iframeDoc.close();
-        } catch (err) {
-            console.error("Failed to load Bull-33 URL:", err);
-            iframeDoc.body.innerHTML = "<h1>Failed to load</h1>";
-        }
-    }
+ name: 'Bull-33',
+ desc: 'Not the best, but good backup',
+ urls: [
+ "https://s3.amazonaws.com/phtn/index.html",
+ "https://s3.us-east-1.amazonaws.com/phtn/index.html",
+ "https://phtn.s3.amazonaws.com/index.html",
+ "https://phtn.s3.us-east-1.amazonaws.com/index.html",
+ "https://s3.dualstack.us-east-1.amazonaws.com/phtn/index.html",
+ "https://phtn.s3.dualstack.us-east-1.amazonaws.com/index.html",
+ "https://s3.amazonaws.com/ptnx/index.html",
+ "https://s3.us-east-1.amazonaws.com/ptnx/index.html",
+ "https://ptnx.s3.amazonaws.com/index.html",
+ "https://ptnx.s3.us-east-1.amazonaws.com/index.html",
+ "https://s3.dualstack.us-east-1.amazonaws.com/ptnx/index.html",
+ "https://phtn.s3.dualstack.us-east-1.amazonaws.com/index.html"
+ ],
+ load: async (url, iframe) => {
+ try {
+ const response = await fetch(url);
+ const html = await response.text();
+ const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+ iframeDoc.open();
+ iframeDoc.write(html);
+ iframeDoc.close();
+ } catch (err) {
+ console.error("Failed to load Bull-33 URL:", err);
+ iframe.contentDocument.body.innerHTML = "<h1>Failed to load</h1>";
+ }
+ }
 },
+
  novene: {
  name: 'Novene',
  desc: 'Fresh green-themed engine',
@@ -603,7 +600,7 @@
  topBar.style.padding = '5px 10px';
  topBar.style.background = '#1e1e1e';
  topBar.style.borderBottom = '1px solid #333';
- topBar.style.height = '40px'; // Fixed height
+ topBar.style.height = '40px';
 
  // Left side buttons
  const leftBtns = document.createElement('div');
@@ -620,7 +617,6 @@
  switchEngineBtn.style.cursor = 'pointer';
  switchEngineBtn.onclick = () => {
  menuView.style.display = 'flex';
- // iframe stays hidden but not removed
  currentIframe.style.display = 'none';
  engineInfo.textContent = '';
  skipMirrorBtn.style.display = 'none';
@@ -630,12 +626,12 @@
  const skipMirrorBtn = document.createElement('button');
  skipMirrorBtn.textContent = 'Skip Mirror';
  skipMirrorBtn.style.padding = '5px 10px';
- skipMirrorBtn.style.background = '#ff5f56'; // Red for skip
+ skipMirrorBtn.style.background = '#ff5f56';
  skipMirrorBtn.style.color = '#fff';
  skipMirrorBtn.style.border = 'none';
  skipMirrorBtn.style.borderRadius = '5px';
  skipMirrorBtn.style.cursor = 'pointer';
- skipMirrorBtn.style.display = 'none'; // Hidden until engine is selected
+ skipMirrorBtn.style.display = 'none';
 
  skipMirrorBtn.onclick = () => {
  if (!currentEngine) return;
@@ -647,21 +643,19 @@
  currentIframe.src = randomUrl;
  };
 
- // --- Blocked Button (Moved here) ---
  const blockedBtn = document.createElement('button');
  blockedBtn.textContent = 'Blocked? Click this';
  blockedBtn.style.padding = '5px 10px';
- blockedBtn.style.background = '#007aff'; // Blue for action
+ blockedBtn.style.background = '#007aff';
  blockedBtn.style.color = '#fff';
  blockedBtn.style.border = 'none';
  blockedBtn.style.borderRadius = '5px';
  blockedBtn.style.cursor = 'pointer';
- blockedBtn.style.display = 'none'; // Hidden until engine is selected
+ blockedBtn.style.display = 'none';
 
  blockedBtn.onclick = () => {
  if (!currentEngine) return;
  const currentData = engines[currentEngine];
- // Try a different URL
  let randomUrl;
  do {
  randomUrl = currentData.urls[Math.floor(Math.random() * currentData.urls.length)];
@@ -673,7 +667,6 @@
  leftBtns.appendChild(skipMirrorBtn);
  leftBtns.appendChild(blockedBtn);
 
- // Right side engine info
  const engineInfo = document.createElement('div');
  engineInfo.style.color = '#fff';
  engineInfo.style.fontSize = '12px';
@@ -687,7 +680,7 @@
  menuView.style.flexDirection = 'column';
  menuView.style.alignItems = 'center';
  menuView.style.justifyContent = 'center';
- menuView.style.height = 'calc(100% - 40px)'; // Subtract top bar height
+ menuView.style.height = 'calc(100% - 40px)';
  menuView.style.padding = '20px';
  menuView.style.gap = '20px';
  menuView.style.overflowY = 'auto';
@@ -700,7 +693,6 @@
  menuTitle.style.marginBottom = '10px';
  menuView.appendChild(menuTitle);
 
- // Helper to create engine buttons
  const createEngineButton = (key, data) => {
  const card = document.createElement('div');
  card.style.background = '#1e1e1e';
@@ -718,7 +710,6 @@
 
  const title = document.createElement('h3');
  title.style.margin = '0';
- // Color code Novene to match its green theme
  if (key === 'novene') {
  title.style.color = '#35b97a';
  } else if (key === 'bull') {
@@ -760,7 +751,6 @@
  iframe.style.border = 'none';
  iframe.style.background = '#000';
  
- // FIX: Remove the old iframe before adding the new one
  if (currentIframe) {
  container.removeChild(currentIframe);
  }
@@ -778,6 +768,7 @@
  menuView.appendChild(createEngineButton('bull', engines.bull));
  menuView.appendChild(createEngineButton('novene', engines.novene));
 
+
  container.appendChild(topBar);
  container.appendChild(menuView);
 
@@ -785,7 +776,7 @@
  const browserView = document.createElement('div');
  browserView.style.display = 'none';
  browserView.style.width = '100%';
- browserView.style.flex = '1'; // Take remaining space
+ browserView.style.flex = '1';
  browserView.style.flexDirection = 'column';
  browserView.style.background = '#0a0a0a';
  browserView.style.overflow = 'hidden';
@@ -816,7 +807,6 @@
  }
  }
 
- // CRITICAL FIX: Append the entire container to contentEl
  contentEl.appendChild(container);
  }
 },
@@ -979,7 +969,6 @@
  });
  }
  },
- // --- Code Editor App ---
  editor: {
  init: (contentEl) => {
  const iframe = document.createElement('iframe');
